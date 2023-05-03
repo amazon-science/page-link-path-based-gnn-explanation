@@ -1,0 +1,46 @@
+aug_citation:
+    gnnexp:
+        device_id: 0
+        src_ntype: author
+        tgt_ntype: paper
+        pred_etype: likes
+        emb_dim: 128
+        hidden_dim: 128
+        out_dim: 128
+        alpha1: 0.0001
+        alpha2: 2.0
+    pgexp:
+        device_id: 0
+        src_ntype: author
+        tgt_ntype: paper
+        pred_etype: likes
+        emb_dim: 128
+        hidden_dim: 128
+        out_dim: 128
+        alpha1: 0.00001
+        alpha2: 0.001
+        batch_size: 512
+        
+synthetic:
+    gnnexp:
+        device_id: 0
+        src_ntype: user
+        tgt_ntype: item
+        pred_etype: likes
+        emb_dim: 64
+        hidden_dim: 64
+        out_dim: 64
+        alpha1: 0.00001
+        alpha2: 0.1
+    pgexp:
+        device_id: 0
+        src_ntype: user
+        tgt_ntype: item
+        pred_etype: likes
+        emb_dim: 64
+        hidden_dim: 64
+        out_dim: 64
+        alpha1: 0.00001
+        alpha2: 1.0
+        batch_size: 256
+    

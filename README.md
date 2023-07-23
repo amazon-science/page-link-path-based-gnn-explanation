@@ -3,7 +3,7 @@
 
 
 Code for the WWW2023 paper [PaGE-Link: Path-based Graph Neural Network Explanation for
-Heterogeneous Link Prediction]() by [Shichang Zhang](https://shichangzh.github.io/), [Jiani Zhang](https://scholar.google.com/citations?user=CBmDAOEAAAAJ&hl=en), [Xiang Song](https://scholar.google.com/citations?user=LyPpCKwAAAAJ&hl=en), [Soji Adeshina](https://sojiadeshina.com/about/), [Da Zheng](https://zheng-da.github.io/), [Christos Faloutsos](http://www.cs.cmu.edu/~christos/)
+Heterogeneous Link Prediction](https://arxiv.org/pdf/2302.12465.pdf) by [Shichang Zhang](https://shichangzh.github.io/), [Jiani Zhang](https://scholar.google.com/citations?user=CBmDAOEAAAAJ&hl=en), [Xiang Song](https://scholar.google.com/citations?user=LyPpCKwAAAAJ&hl=en), [Soji Adeshina](https://sojiadeshina.com/about/), [Da Zheng](https://zheng-da.github.io/), [Christos Faloutsos](http://www.cs.cmu.edu/~christos/)
 , and [Yizhou Sun](http://web.cs.ucla.edu/~yzsun/).
 
 
@@ -86,6 +86,7 @@ Top three paths (<span style="color:green">green arrows</span>) selected by PaGE
   <br />
 </p>
 
+Please refer to `plotting_example.ipynb` for an example of generating plots like this.
 
 ## Cite
 

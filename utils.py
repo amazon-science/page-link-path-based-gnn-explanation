@@ -904,6 +904,7 @@ def plot_hetero_graph(ghetero,
                       selected_edge_dict=None,
                       selected_edge_kwargs={},
                       label='nid',
+                      etype_label=True,
                       label_offset=False,
                       title=None,
                       legend=False,
@@ -967,7 +968,8 @@ def plot_hetero_graph(ghetero,
 
         # Start drawing
         plt.figure(figsize=figsize)
-
+        ax = plt.gca()
+ 
         # Draw nodes for each ntype
         for ntype in ghetero.ntypes:
             ntype_ids = ghomo.ndata[dgl.NTYPE]
@@ -997,10 +999,11 @@ def plot_hetero_graph(ghetero,
                                    curr_nids, 
                                    node_shape=node_shape,
                                    node_color=node_color,
-                                   node_size=node_size)
+                                   node_size=node_size,
+                                   ax=ax)
             
         # Draw edges
-        nx.draw_networkx_edges(nx_graph, pos, edge_list, **edge_kwargs)
+        nx.draw_networkx_edges(nx_graph, pos, edge_list, **edge_kwargs, ax=ax)
         
         if selected_edge_dict is not None:
             ntype_hetero_nids_to_homo_nids = get_ntype_hetero_nids_to_homo_nids(ghetero)
@@ -1013,36 +1016,61 @@ def plot_hetero_graph(ghetero,
                     homo_tgt_nid = ntype_hetero_nids_to_homo_nids[(tgt_ntype, tgt_nid)]
                     homo_selected_edge_list += [(homo_src_nid, homo_tgt_nid)]
         
-            nx.draw_networkx_edges(nx_graph, pos, homo_selected_edge_list, **selected_edge_kwargs)
+            nx.draw_networkx_edges(nx_graph, pos, homo_selected_edge_list, **selected_edge_kwargs, ax=ax)
             
             
-        # Start labelling
+     # Start labelling nodes
         if label == 'none':
             pass
         elif label == 'nid':
             homo_nids_to_hetero_nids = get_homo_nids_to_hetero_nids(ghetero)
             nx.draw_networkx_labels(nx_graph, pos, labels=homo_nids_to_hetero_nids)
         else:
+            # Set extra space to avoid label outside of the box
+            x_values, y_values = zip(*pos.values())
+            x_max = max(x_values)
+            x_min = min(x_values)
+            x_margin = (x_max - x_min) * 0.12
+            ax.set_xlim(x_min - x_margin, x_max + x_margin)
+
+
             if ghetero.ndata.get(label):
-                homo_nids_to_hetero_nids = get_homo_nids_to_hetero_ndata_feat(ghetero, label)
+                homo_nids_to_hetero_ndata_feat = get_homo_nids_to_hetero_ntype_data_feat(ghetero, label)
                 if label_offset:
                     offset = 0.8 / figsize[1]
                     label_pos = {nid : [p[0], p[1] - offset] for nid, p in pos.items()} 
                 else:
                     label_pos = pos
+
                 nx.draw_networkx_labels(nx_graph, 
                                         label_pos, 
-                                        font_size=15, 
+                                        font_size=14, 
                                         font_weight='bold', 
-                                        labels=homo_nids_to_hetero_nids,
-                                        verticalalignment='top')
+                                        labels=homo_nids_to_hetero_ndata_feat,
+                                        horizontalalignment='center',
+                                        verticalalignment='center',
+                                        ax=ax)
+
             else:
                 raise ValueError('Unrecognized label')
+            
+        # Start labelling edges with etype
+        if etype_label is not None:
+            if ghetero.ndata.get(label):
+                homo_nid_pairs_to_etypes = get_homo_nid_pairs_to_etypes(ghetero)
+                nx.draw_networkx_edge_labels(nx_graph, 
+                                             pos, 
+                                             font_size=13, 
+                                             font_weight='bold', 
+                                             edge_labels=homo_nid_pairs_to_etypes,
+                                             horizontalalignment='center',
+                                             verticalalignment='center',
+                                             ax=ax)
             
         if legend:
             plt.legend(ghetero.ntypes, fontsize=15, prop={'size': figsize[0]*2.5}, bbox_to_anchor = (1.15, 0.7)) 
 
-        plt.axis('off')
+        ax.axis('off')
         if title is not None:
             plt.title(textwrap.fill(title, width=60))
         if fig_name is not None:
@@ -1054,3 +1082,27 @@ def plot_hetero_graph(ghetero,
             
         return nx_graph
   
+def get_homo_nids_to_hetero_ntype_data_feat(ghetero, feat=dgl.NID):
+    '''
+    Plotting helper function
+    '''
+    ghomo = dgl.to_homogeneous(ghetero)
+    homo_nids = range(ghomo.num_nodes())
+    hetero_ndata_feat = []
+    for ntype in ghetero.ntypes:
+        hetero_ndata_feat += [f'{ntype[0]}' + f'{feat}' for feat in ghetero.ndata[feat][ntype].tolist()]
+
+    homo_nids_to_hetero_ndata_feat = dict(zip(homo_nids, hetero_ndata_feat))
+    return homo_nids_to_hetero_ndata_feat
+
+def get_homo_nid_pairs_to_etypes(ghetero):
+    '''
+    Plotting helper function
+    '''
+    ghomo = dgl.to_homogeneous(ghetero)
+    etypes = ghetero.etypes
+    etype_list = [etypes[etype_id] for etype_id in ghomo.edata[dgl.ETYPE]]
+    u, v = ghomo.edges()
+    homo_nid_pairs_to_etypes = dict(zip(zip(u.tolist(), v.tolist()), etype_list))
+    return homo_nid_pairs_to_etypes
+
